@@ -25,5 +25,7 @@ def send_email(subject: str, html: str) -> dict:
         },
         timeout=15,
     )
-    resp.raise_for_status()
+    if not resp.ok:
+        # Resend가 본문에 실패 사유(예: 도메인 미인증, 수신자 제한)를 담아주므로 그대로 노출한다.
+        raise RuntimeError(f"Resend 발송 실패 ({resp.status_code}): {resp.text}")
     return resp.json()
